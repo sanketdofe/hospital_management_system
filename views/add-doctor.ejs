@@ -1,0 +1,79 @@
+<%- include('partials/header') %>
+
+
+
+
+<div class="container d-flex justify-content-center" >
+  <div class="col-md-5">
+    <div class="form-area">
+      <form action="/submit-employee" method="post">
+        <br style="clear:both">
+        <h3 style="margin-bottom: 25px; text-align: center;">Add Doctor</h3>
+
+        <div class="form-group">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name" required>
+        </div>
+        <div class="form-group">
+          <input type="password" class="form-control" id="password" name="password" placeholder="password" required>
+        </div>
+        <div class="form-group">
+          <select id="gender" name="gender" placeholder="Gender" class="form-control">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+            <option value="O">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="number" class="form-control" id="age" name="age" placeholder="Age" required>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" id="med_degree" name="med_degree" placeholder="Medical Degree" required>
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="specialization" name="specialization" placeholder="Specialization" required>
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="experience" name="experience" placeholder="Experience" required>
+        </div>
+        <div class="form-group">
+          <select id="shift" name="shift" placeholder="Shift" class="form-control">
+            <option value="">Shift</option>
+            <option value="Mrng">Morning</option>
+            <option value="Aftrn">Afternoon</option>
+            <option value="Evng">Evening</option>
+            <option value="Night">Night</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select id="doc_type" name="doc_type" placeholder="Doctor Type" class="form-control">
+            <option value="">Doctor Type</option>
+            <option value="Permanent">Permanent</option>
+            <option value="Attendee">Attendee</option>
+            <option value="Visiting">Visiting</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="number" class="form-control" id="mobile" name="mobile" placeholder="Mobile Number" required>
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="department" name="department" placeholder="Department" required>
+        </div>
+        <!-- <div class="form-group">
+          <input type="text" class="form-control" id="designation" name="designantion" placeholder="Designation" required>
+        </div> -->
+        <div class="form-group">
+          <textarea class="form-control" type="textarea" name="address" id="address" placeholder="Address" maxlength="140" rows="4"></textarea>
+        </div>
+
+        <input type="hidden" name="type" value="<%= type %>">
+
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<%- include('partials/footer') %>

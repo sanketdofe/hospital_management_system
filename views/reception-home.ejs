@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+<div class="">
+  <div class="d-flex justify-content-center">
+    <div class="">
+      <h2 style="margin: 25px 0; text-align: center;">Welcome <%= recp_name %></h2>
+    </div>
+  </div>
+  <div class="" style="position:absolute; right:70px; top:30px ">
+    <form class="" action="/logout" method="get">
+      <button class="btn btn-dark" type="submit" name="button">Logout</button>
+    </form>
+  </div>
+</div>
+
+<br style="clear:both">
+
+
+<div class="container d-flex justify-content-center">
+
+  <div class="row">
+    <div class="column" style="margin: 10px">
+      <form class="" action="/<%= recp_name %>/add-patient" method="get">
+        <button class="btn btn-outline-dark" type="submit">Add New Patient</button>
+      </form>
+    </div>
+    <div class="column"  style="margin: 10px">
+      <form class="" action="/<%= recp_name %>/add-appointment" method="get">
+        <button class="btn btn-outline-dark" type="submit">New Appointment</button>
+      </form>
+    </div>
+    <div class="column"  style="margin: 10px">
+      <form class="" action="/<%= recp_name %>/add-case" method="get">
+        <button class="btn btn-outline-dark" type="submit">New Case</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+
+
+<%- include('partials/footer') %>
