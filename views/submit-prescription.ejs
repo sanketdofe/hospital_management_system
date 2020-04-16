@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Hospital Management</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<div class="" id="presImage">
+  <p style="position:absolute; right:310px; top:35px">Date: <%= date %></p>
+  <h4 style="display: inline-block; margin: 30px 0 0 170px ">Patient Name: <%= pat_name %></h4>
+  <h6 style="margin: 30px 0 0 170px">Appt. No: <%= appt_no %></h6>
+  <div class="container d-flex justify-content-center" style="margin: 30px 0">
+
+    <div class="col-sm-9">
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">Sr.No</th>
+            <th scope="col">Medication</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Directions</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pres.forEach((item, i) => { %>
+            <tr>
+              <th scope="row"><%= i+1 %></th>
+              <td><%= item.med %></td>
+              <td><%= item.qty %></td>
+              <td><%= item.dir %></td>
+              <td><%= item.food + " food" %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class=" d-flex justify-content-center">
+  <div class="row" >
+    <form class="column" action="/check-appointment" method="post">
+      <input type="hidden" name="id" value="<%= id %>">
+      <button type="submit" class="btn btn-dark" onclick="screenshot()">Submit</button>
+    </form>
+    <div class="column">
+        <button class="btn btn-outline-dark" style="margin: 0 10px" onclick="goBack()">Go Back</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function goBack() {
+    window.history.go(-1);
+  }
+</script>
+
+
+</body>
+</html>

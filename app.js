@@ -170,7 +170,7 @@ app.route("/check-appointment")
         attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(apptmt => {
           patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
             //res.send(pat);
-            res.render("check-appointments", {appt: apptmt, pat: pat});
+            res.render("check-appointments", {appt: apptmt, pat: pat, id: req.body.id});
           });
         });
       });
@@ -178,10 +178,11 @@ app.route("/check-appointment")
       console.log(err);
     });
   } else {
+    ///////for nurse//////////
     appointments.findAll({ attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
       patient.findAll({where: {pid: appt.map(a => a.pid)},attributes: ['name', 'gender', 'age'] }).then(pat => {
         //res.send(pat);
-        res.render("check-appointments", {appt: appt, pat: pat});
+        res.render("check-appointments", {appt: appt, pat: pat, id: req.body.id});
       });
     });
   }
@@ -229,6 +230,42 @@ app.route("/check-case")
     });
   }
 
+});
+
+
+////////////////////////////////Add Prescription///////////////////////////////
+let pres = [];
+app.route("/:id/:appt_no/add-prescription")
+.get(function(req, res){
+  console.log(req.params);
+  pres = [];
+  appointments.findOne({where: {appt_no: req.params.appt_no}, attributes: ['appt_no', 'pid'] }).then(appt => {
+    patient.findOne({where: {pid: appt.pid},attributes: ['name', 'gender', 'age'] }).then(pat => {
+      //res.send(pat);
+      res.render("add-prescription", {appt_no: req.params.appt_no, pat_name: pat.name, pres: pres, id: req.params.id });
+    });
+  });
+})
+.post(function(req, res){
+  console.log(req.body);
+  res.render("submit-prescription", {id: req.params.id, appt_no: req.params.appt_no, pat_name: req.body.pat_name, pres: pres, date: new Date().toDateString()});
+});
+
+///////////////////////Add medicine in prescription////////////////////////////
+app.route("/add-med")
+// .get(function(req, res){
+//
+// })
+.post(function(req, res){
+  console.log(req.body);
+  const med = {
+    med: req.body.med,
+    qty: req.body.qty,
+    dir: req.body.dir,
+    food:req.body.food
+  };
+  pres.push(med);
+  res.render("add-prescription", {id: req.body.id, appt_no: req.body.appt_no, pat_name: req.body.pat_name, pres: pres});
 });
 
 

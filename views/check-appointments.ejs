@@ -11,6 +11,7 @@
           <th scope="col">Gender</th>
           <th scope="col">Age</th>
           <th scope="col">Date Admitted</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -21,12 +22,15 @@
             <td><%= pat[i].gender %></td>
             <td><%= pat[i].age %></td>
             <td><%= appt[i].date_admitted %></td>
+            <form class="" action="/<%= id %>/<%= appt[i].appt_no %>/add-prescription" method="get">
+              <td><button class="btn btn-light" type="submit">Open</button></td>
+            </form>
+
           </tr>
         <% } %>
 
       </tbody>
     </table>
-
   </div>
 </div>
 
