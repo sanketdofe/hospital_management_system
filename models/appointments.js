@@ -40,7 +40,7 @@ module.exports = sequelize => {
       }
     },
     room_alloted: {
-      type: DataTypes.CHAR(4),
+      type: DataTypes.BIGINT,
       allowNull: true,
       defaultValue: null,
       comment: null,
@@ -82,6 +82,15 @@ module.exports = sequelize => {
       comment: null,
       primaryKey: false,
       field: "updatedAt",
+      autoIncrement: false
+    },
+    done: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: null,
+      comment: null,
+      primaryKey: false,
+      field: "done",
       autoIncrement: false
     }
   };

@@ -12,6 +12,7 @@
           <th scope="col">Age</th>
           <th scope="col">Date Admitted</th>
           <th scope="col"></th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +25,9 @@
             <td><%= appt[i].date_admitted %></td>
             <form class="" action="/<%= id %>/<%= appt[i].appt_no %>/add-prescription" method="get">
               <td><button class="btn btn-light" type="submit">Open</button></td>
+            </form>
+            <form class="" action="/<%= appt[i].pid %>/check-history" method="get">
+              <td><button class="btn btn-light" type="submit">History</button></td>
             </form>
 
           </tr>

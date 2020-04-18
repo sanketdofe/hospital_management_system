@@ -118,6 +118,15 @@ module.exports = sequelize => {
       primaryKey: false,
       field: "updatedAt",
       autoIncrement: false
+    },
+    prescription: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+      comment: null,
+      primaryKey: false,
+      field: "prescription",
+      autoIncrement: false
     }
   };
   const options = {

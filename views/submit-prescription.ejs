@@ -10,13 +10,13 @@
 
 <body>
 
-<div class="" id="presImage">
+<div class="" id="presImage" style="max-width: 800px; margin:0 auto">
   <p style="position:absolute; right:310px; top:35px">Date: <%= date %></p>
-  <h4 style="display: inline-block; margin: 30px 0 0 170px ">Patient Name: <%= pat_name %></h4>
-  <h6 style="margin: 30px 0 0 170px">Appt. No: <%= appt_no %></h6>
-  <div class="container d-flex justify-content-center" style="margin: 30px 0">
+  <h4 style="display: inline-block; margin: 30px 0 0 30px ">Patient Name: <%= pat_name %></h4>
+  <h6 style="margin: 30px 0 0 100px; display: inline-block">Appt. No: <%= appt_no %></h6>
+  <div class="container" style="margin: 30px 0; display: inline-block; text-align:center; align-content: center; max-width: 800px">
 
-    <div class="col-sm-9">
+    <div class="col">
       <table class="table">
         <thead class="thead-light">
           <tr>
@@ -46,7 +46,8 @@
   <div class="row" >
     <form class="column" action="/check-appointment" method="post">
       <input type="hidden" name="id" value="<%= id %>">
-      <button type="submit" class="btn btn-dark" onclick="screenshot()">Submit</button>
+      <button type="button" class="btn btn-dark" id="saveImg" onclick="ket()">Upload</button>
+      <button style="display: none" type="submit" class="btn btn-dark" id="submit">Submit</button>
     </form>
     <div class="column">
         <button class="btn btn-outline-dark" style="margin: 0 10px" onclick="goBack()">Go Back</button>
@@ -61,6 +62,47 @@
   }
 </script>
 
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+<script src="/html2canvas.min.js"></script>
+<script type="text/javascript">
+var test = $("#presImage").get(0);
+// to canvas
+function ket () {
+  $("#saveImg").hide();
+  $("#submit").show();
+  console.log("inside");
+    html2canvas(test, {scale: 2}).then(function (canvas) {
+        var canvasWidth = canvas.width;
+        var canvasHeight = canvas.height;
+        //var img = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
+        var base64URL = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+          var formData = new FormData();
+          formData.append('appt_no', <%= appt_no %>);
+          formData.append('img', base64URL);
+          $.ajax({
+            url: "/presImage",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            complete: function() {
+              //called when complete
+              console.log('process complete');
+            },
+
+            success: function(data) {
+              console.log(data);
+              console.log('process sucess');
+           },
+
+            error: function() {
+              console.log('process error');
+            },
+          });
+    });
+};
+</script>
 
 </body>
 </html>

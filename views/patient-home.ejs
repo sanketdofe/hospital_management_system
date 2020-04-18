@@ -1,7 +1,28 @@
 <%- include('partials/header') %>
 
-<h1> <%= pat_name %>  </h1>
 
+<div class="">
+  <div class="d-flex justify-content-center">
+    <div class="">
+      <h2 style="margin: 20px 0">Welcome <%= pat_name %></h2>
+    </div>
+  </div>
+  <div class="" style="position:absolute; right:70px; top:30px ">
+    <form class="" action="/logout" method="get">
+      <button class="btn btn-dark" type="submit" name="button">Logout</button>
+    </form>
+  </div>
+</div>
 
+<div class="container d-flex justify-content-center" >
+
+  <div class="row">
+    <div class="column" style="margin: 10px">
+      <form class="" action="/<%= pid %>/check-history" method="post">
+        <button class="btn btn-outline-dark" type="submit"">Check History</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 <%- include('partials/footer') %>

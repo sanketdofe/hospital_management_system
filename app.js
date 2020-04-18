@@ -5,6 +5,8 @@ const ejs = require("ejs");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
+var multer = require('multer');
+var upload = multer();
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('hospital', 'postgres', '123', {
   host: 'localhost',
@@ -23,11 +25,16 @@ const app = express();
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: true,
+  limit: "5mb"
 }));
 app.set("view engine", "ejs");
 
-
+/////////////////////////////////html2canvas/////////////////////////////////
+app.get('/html2canvas.min.js', function(req, res) {
+    res.sendFile(__dirname + '/node_modules/html2canvas/dist/html2canvas.min.js');
+});
+/////////////////////////Sequelize-authenticate///////////////////////////////
 sequelize
   .authenticate()
   .then(() => {
@@ -69,7 +76,7 @@ app.get("/d", function(req, res) {
 });
 
 
-/////////////////////////Homepage////////////////////////////////////
+//////////////////////////////////Homepage////////////////////////////////////
 app.route("/")
   .get(function(req, res) {
     res.render("home");
@@ -157,7 +164,7 @@ app.route("/check-appointment")
 .post(function(req, res){
   console.log(req.body);
   if (req.body.id) {
-    appointments.findAll({where: {did: req.body.id},
+    appointments.findAll({where: {did: req.body.id, done: "false"},
     attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
       ongoing_patients.findAll({where: {is_ongoing: "true"},
       attributes: ['pid']}).then(on_pat => {
@@ -166,8 +173,9 @@ app.route("/check-appointment")
         var arrB = on_pat.map(on_p => on_p.pid);
         var arrA = appt.map((a) => a.pid );
         var aminusb = arrA.filter(x => !arrB.includes(x));
-        appointments.findAll({where: {pid: aminusb},
+        appointments.findAll({where: {pid: aminusb, done: "false"},
         attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(apptmt => {
+          //res.send(apptmt);
           patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
             //res.send(pat);
             res.render("check-appointments", {appt: apptmt, pat: pat, id: req.body.id});
@@ -233,6 +241,31 @@ app.route("/check-case")
 });
 
 
+/////////////////////////////Get And store presImage///////////////////////////
+var cpUpload = upload.fields([{ name: 'id', maxCount: 1 }, { name: 'img', maxCount: 1 }]);
+app.post("/presImage", cpUpload, function (req, res, next) {
+  //console.log(req.files);
+  //console.log(req.body);
+  records.findOne({where: {appt_no: req.body.appt_no}}).then((rec) => {
+    if(rec){
+      //console.log(rec);
+      rec.update({prescription: req.body.img}).then(updated_rec =>{
+        //console.log(updated_rec);
+      });
+    }
+  }).catch(err =>{
+    console.log(err);
+  });
+  appointments.findOne({where: {appt_no: req.body.appt_no}}).then(appt => {
+    if(appt){
+      appt.update({done: "true"}).then(updated_appt => {
+        //console.log(updated_appt);
+      });
+    }
+  });
+});
+
+
 ////////////////////////////////Add Prescription///////////////////////////////
 let pres = [];
 app.route("/:id/:appt_no/add-prescription")
@@ -279,7 +312,7 @@ app.route("/login-patient")
     //console.log(doc);
     bcrypt.compare(req.body.password, pat.password, function(err, result) {
       if(result){
-        res.render("patient-home", {pat_name: pat.name});
+        res.render("patient-home", {pat_name: pat.name, pid: pat.pid});
       }else{
         res.redirect("/login-patient");
       }
@@ -290,6 +323,48 @@ app.route("/login-patient")
   });
 });
 
+///////////////////////////////Check History for Patient////////////////////////
+app.route("/check-history")
+// .post(function(req, res){
+//   records.findAll({where: {pid: req.body.pid} }).then(rec => {
+//     doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+//       res.render("check-history", {rec: rec, doc: doc});
+//     });
+//   });
+// });
+
+/////////////////////////////Check History for Doctor///////////////////////////
+app.route("/:pid/check-history")
+.get(function(req, res){
+  appointments.findAll({where: {pid: req.params.pid, done: true} }).then(appt => {
+    //res.send(appt);
+    records.findAll({where: { appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+      //res.send(rec);
+      doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+        res.render("check-history", {rec: rec, doc: doc});
+      });
+    }).catch(err => {
+      res.render("notfound", {item: "History"});
+    });
+  }).catch(err => {
+    res.render("notfound", {item: "History"});
+  });
+})
+.post(function(req, res){
+  records.findAll({where: {pid: req.params.pid} }).then(rec => {
+    doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+      res.render("check-history", {rec: rec, doc: doc});
+    });
+  });
+});
+
+////////////////////////////Check Prescription////////////////////////////////
+app.route("/check-prescription")
+.post(function(req, res){
+  records.findOne({where: {record_no: req.body.record_no} }).then(rec => {
+    res.render("show-prescription", {img: rec.prescription});
+  });
+});
 
 //////////////////////////////////Add Patient//////////////////////////////////
 app.route("/:recp_name/add-patient")
