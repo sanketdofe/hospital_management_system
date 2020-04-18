@@ -1,0 +1,41 @@
+<%- include('partials/header') %>
+
+<div class="container d-flex justify-content-center">
+  <div class="col-md-5">
+    <div class="form-area">
+      <form action="/<%= pid %>/add-appt-patient" method="post" >
+        <br style="clear:both">
+        <h3 style="margin-bottom: 25px; text-align: center;">Get a Appointment</h3>
+
+
+        <label for="type">Select a Doctor:</label>
+        <div class="form-group">
+          <select id="type" name="did" class="form-control">
+            <% doc.forEach((item) => { %>
+              <option value="<%= item.id %>"><%= item.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <div class="" style="margin: 0 5px">
+            <button type="submit" class="btn btn-dark">Submit</button>
+          </div>
+        </div>
+      </form>
+      <div class="d-flex justify-content-center" style="margin: 10px 5px">
+        <button class="btn btn-outline-dark" onclick="goBack()">Go Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function goBack() {
+    window.history.go(-1);
+  }
+</script>
+
+
+
+<%- include('partials/footer') %>

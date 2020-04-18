@@ -173,7 +173,8 @@ app.route("/check-appointment")
         var arrB = on_pat.map(on_p => on_p.pid);
         var arrA = appt.map((a) => a.pid );
         var aminusb = arrA.filter(x => !arrB.includes(x));
-        appointments.findAll({where: {pid: aminusb, done: "false"},
+        //console.log(aminusb);
+        appointments.findAll({where: {pid: aminusb, done: "false", did: req.body.id},
         attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(apptmt => {
           //res.send(apptmt);
           patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
@@ -312,7 +313,15 @@ app.route("/login-patient")
     //console.log(doc);
     bcrypt.compare(req.body.password, pat.password, function(err, result) {
       if(result){
-        res.render("patient-home", {pat_name: pat.name, pid: pat.pid});
+        appointments.findAll({where: {pid: pat.pid, done: "false"} }).then(appt => {
+          //res.send(appt);
+          records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+            //res.send(rec);
+            doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+              res.render("patient-home", {pat: pat, rec:rec, doc: doc});
+            });
+          });
+        });
       }else{
         res.redirect("/login-patient");
       }
@@ -323,17 +332,7 @@ app.route("/login-patient")
   });
 });
 
-///////////////////////////////Check History for Patient////////////////////////
-app.route("/check-history")
-// .post(function(req, res){
-//   records.findAll({where: {pid: req.body.pid} }).then(rec => {
-//     doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
-//       res.render("check-history", {rec: rec, doc: doc});
-//     });
-//   });
-// });
-
-/////////////////////////////Check History for Doctor///////////////////////////
+/////////////////////////////////Check History/////////////////////////////////
 app.route("/:pid/check-history")
 .get(function(req, res){
   appointments.findAll({where: {pid: req.params.pid, done: true} }).then(appt => {
@@ -351,9 +350,14 @@ app.route("/:pid/check-history")
   });
 })
 .post(function(req, res){
-  records.findAll({where: {pid: req.params.pid} }).then(rec => {
-    doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
-      res.render("check-history", {rec: rec, doc: doc});
+  appointments.findAll({where: {pid: req.params.pid, done: "true"} }).then(appt => {
+    //res.send(appt);
+    records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+      //res.send(rec);
+      doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+        //res.send(doc);
+        res.render("check-history", {rec: rec, doc: doc});
+      });
     });
   });
 });
@@ -399,7 +403,7 @@ app.route("/:recp_name/add-patient")
   });
 
 
-///////////////////////////////Add Appointment/////////////////////////////////
+///////////////////////Add Appointment for reception///////////////////////////
 app.route("/:recp_name/add-appointment")
   .get(function(req, res) {
     res.render("add-appointment", {recp_name: req.params.recp_name});
@@ -437,8 +441,72 @@ app.route("/:recp_name/add-appointment")
     });
   });
 
+///////////////////////Add Appointment for patient/////////////////////////////
+app.route("/:pid/add-appt-patient")
+.get(function(req, res){
+  doctor.findAll({attributes: ['id', 'name']}).then(doc => {
+    res.render("add-appt-patient", {doc: doc, pid: req.params.pid});
+  });
+})
+.post(function(req, res){
+  const appt = {
+    pid: req.params.pid,
+    did: req.body.did,
+    date_admitted: new Date()
+  };
+  sequelize.sync({force: false}).then(() => {
+    appointments.create(appt, {fields: ["pid", "did", "date_admitted", "createdAt", "updatedAt"]}).then(apptmt => {
+      const rec = {
+        appt_no: apptmt.appt_no,
+        pid: req.params.pid,
+        did: req.body.did,
+        date_admitted: new Date(),
+        is_ongoing: "false"
+      };
+      sequelize.sync({force: false}).then(() => {
+        records.create(rec, {fields: ["appt_no", "pid", "did", "date_admitted", "is_ongoing", "createdAt", "updatedAt"]}).then(recrd => {
+          //console.log(recrd);
+        });
+        patient.findOne({where: {pid: req.params.pid} }).then(pat => {
+          appointments.findAll({where: {pid: pat.pid, done: "false"} }).then(appt => {
+            records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+              doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+                res.render("patient-home", {pat: pat, rec:rec, doc: doc});
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
 
-////////////////////////////Add Case//////////////////////////////////////
+
+////////////////////////////Cancel Appointment////////////////////////////////
+app.route("/cancel-appt")
+.post(function(req, res){
+  records.findOne({where: {record_no: req.body.record_no} }).then(rec => {
+    const appt_no = rec.appt_no;
+    const pid = rec.pid;
+    rec.destroy().then(destroyed_row => {
+      //console.log(destroyed_row);
+      appointments.destroy({where: {appt_no: appt_no} }).then(destroyed_appt => {
+        //console.log(destroyed_appt);
+        patient.findOne({where: {pid: pid} }).then(pat => {
+          appointments.findAll({where: {pid: pat.pid, done: "false"} }).then(appt => {
+            records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+              doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+                res.render("patient-home", {pat: pat, rec:rec, doc: doc});
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+////////////////////////////////Add Case//////////////////////////////////////
 app.route("/:recp_name/add-case")
   .get(function(req, res) {
     res.render("add-case", {recp_name: req.params.recp_name});

@@ -4,7 +4,7 @@
 <div class="">
   <div class="d-flex justify-content-center">
     <div class="">
-      <h2 style="margin: 20px 0">Welcome <%= pat_name %></h2>
+      <h2 style="margin: 20px 0">Welcome <%= pat.name %></h2>
     </div>
   </div>
   <div class="" style="position:absolute; right:70px; top:30px ">
@@ -14,12 +14,50 @@
   </div>
 </div>
 
+<div class="" style= "text-align:center">
+  <h4 style="margin:30px 0 10px 0">Upcoming Appointments</h4>
+</div>
+<div class="container d-flex justify-content-center" >
+  <div class="" style="margin:0 0 30px 0">
+    <table class="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Appt No</th>
+          <th scope="col">Doctor</th>
+          <th scope="col">Date</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (var i = 0; i < rec.length; i++) { %>
+          <tr>
+            <th scope="row"><%= rec[i].appt_no %></th>
+            <td><%= doc[i].name %></td>
+            <td><%= rec[i].date_admitted %></td>
+            <form class="" action="/cancel-appt" method="post">
+              <td><button class="btn btn-light" type="submit" name="record_no" value="<%= rec[i].record_no %>">Cancel</button></td>
+            </form>
+
+          </tr>
+        <% } %>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
 <div class="container d-flex justify-content-center" >
 
   <div class="row">
     <div class="column" style="margin: 10px">
-      <form class="" action="/<%= pid %>/check-history" method="post">
+      <form class="" action="/<%= pat.pid %>/check-history" method="post">
         <button class="btn btn-outline-dark" type="submit"">Check History</button>
+      </form>
+    </div>
+    <div class="column" style="margin: 10px">
+      <form class="" action="/<%= pat.pid %>/add-appt-patient" method="get">
+        <button class="btn btn-outline-dark" type="submit"">New Appointment</button>
       </form>
     </div>
   </div>
