@@ -23,9 +23,6 @@
             <td><%= pat[i].gender %></td>
             <td><%= pat[i].age %></td>
             <td><%= appt[i].date_admitted %></td>
-            <form class="" action="/<%= id %>/<%= appt[i].appt_no %>/add-prescription" method="get">
-              <td><button class="btn btn-light" type="submit">Open</button></td>
-            </form>
             <form class="" action="/<%= appt[i].pid %>/check-history" method="get">
               <td><button class="btn btn-light" type="submit">History</button></td>
             </form>
@@ -39,10 +36,12 @@
 </div>
 
 <div class="d-flex justify-content-center">
-  <form class="" action="/<%= id %>/doctor-home" method="get">
+  <form class="" action="/<%= name %>/nurse-home" method="get">
     <button class="btn btn-outline-dark" type="submit">Go Back</button>
   </form>
 </div>
+
+
 
 
 <%- include('partials/footer') %>

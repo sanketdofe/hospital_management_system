@@ -24,17 +24,15 @@
         </div>
       </form>
       <div class="d-flex justify-content-center" style="margin: 10px 5px">
-        <button class="btn btn-outline-dark" onclick="goBack()">Go Back</button>
+        <form class="" action="/<%= pid %>/patient-home" method="get">
+          <button class="btn btn-outline-dark" type="submit">Go Back</button>
+        </form>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  function goBack() {
-    window.history.go(-1);
-  }
-</script>
+
 
 
 

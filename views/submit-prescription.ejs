@@ -50,17 +50,15 @@
       <button style="display: none" type="submit" class="btn btn-dark" id="submit">Submit</button>
     </form>
     <div class="column">
-        <button class="btn btn-outline-dark" style="margin: 0 10px" onclick="goBack()">Go Back</button>
+      <form class="" action="/check-appointment" method="post">
+        <input type="hidden" name="id" value="<%= id %>">
+        <button class="btn btn-outline-dark" style="margin: 0 10px" type="submit">Go Back</button>
+      </form>
     </div>
   </div>
 </div>
 
 
-<script>
-  function goBack() {
-    window.history.go(-1);
-  }
-</script>
 
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>

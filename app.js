@@ -56,24 +56,8 @@ const patient = sequelize.import(__dirname + "/models/patient.js");
 const receptionist = sequelize.import(__dirname + "/models/receptionist.js");
 const records = sequelize.import(__dirname + "/models/records.js");
 const room_alloted = sequelize.import(__dirname + "/models/room_alloted.js");
+const admin = sequelize.import(__dirname + "/models/admin.js");
 
-
-
-
-////////////////////////////////Fetch Employees///////////////////////////////
-app.get("/d", function(req, res) {
-
-  sequelize.sync({
-    force: false
-  }).then(() => {
-    employee.findAll().then(employee => {
-      //console.log(employee);
-      res.send(employee);
-    });
-    console.log("sync is completed");
-  });
-
-});
 
 
 //////////////////////////////////Homepage////////////////////////////////////
@@ -90,6 +74,26 @@ app.route("/")
     }
   });
 
+
+//////////////////////////////Admin Login/////////////////////////////////////
+app.route("/admin-login")
+.get(function(req, res){
+  res.render("login-admin");
+})
+.post(function(req, res){
+  admin.findOne({where: {username: req.body.username} }).then(ad => {
+    bcrypt.compare(req.body.password, ad.password, function(err, result) {
+      if(result){
+        res.render("admin-home");
+      }else{
+        res.render("login-admin");
+      }
+    });
+  }).catch(err => {
+    console.log("No admin found");
+    res.render("login-admin");
+  });
+});
 
 
 ///////////////////////////////Employee Login//////////////////////////////////
@@ -110,7 +114,7 @@ app.route("/login-employee")
         //console.log(doc);
         bcrypt.compare(password, doc.password, function(err, result) {
           if(result){
-            res.render("doctor-home", {name: doc.name, id: doc.id});
+            res.redirect("/"+doc.id+"/doctor-home");
 
           }else{
             res.redirect("/login-employee");
@@ -126,7 +130,7 @@ app.route("/login-employee")
         //console.log(doc);
         bcrypt.compare(password, nur.password, function(err, result) {
           if(result){
-            res.render("nurse-home", {name: nur.name});
+            res.redirect("/"+nur.name+"/nurse-home");
           }else{
             res.redirect("/login-employee");
           }
@@ -141,7 +145,7 @@ app.route("/login-employee")
         //console.log(doc);
         bcrypt.compare(password, recp.password, function(err, result) {
           if(result){
-            res.render("reception-home", {recp_name: recp.name});
+            res.redirect("/"+recp.name+"/reception-home");
           }else{
             res.redirect("/login-employee");
           }
@@ -159,43 +163,90 @@ app.route("/login-employee")
   });
 
 
+/////////////////////////////Render Homepage//////////////////////////////////
+app.get("/:id/doctor-home", function(req, res){
+  doctor.findOne({where: {id: req.params.id}, attributes: ['name'] }).then(doc => {
+    res.render("doctor-home", {id: req.params.id, name: doc.name});
+  });
+});
+
+app.get("/:name/reception-home", function(req, res){
+  res.render("reception-home", {recp_name: req.params.name});
+});
+
+app.get("/:name/nurse-home", function(req, res){
+  res.render("nurse-home", {name: req.params.name});
+});
+
+app.get("/:pid/patient-home", function(req, res){
+  patient.findOne({where: {pid: req.params.pid} }).then(pat => {
+    appointments.findAll({where: {pid: pat.pid, done: "false"} }).then(appt => {
+      //res.send(appt);
+      records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
+        //res.send(rec);
+        doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+          res.render("patient-home", {pat: pat, rec:rec, doc: doc});
+        });
+      });
+    });
+  });
+});
+
+app.get("/admin-home", function(req, res){
+  res.render("admin-home");
+});
+
+
 ///////////////////////////////Check Appointment///////////////////////////////
 app.route("/check-appointment")
 .post(function(req, res){
   console.log(req.body);
-  if (req.body.id) {
-    appointments.findAll({where: {did: req.body.id, done: "false"},
-    attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
-      ongoing_patients.findAll({where: {is_ongoing: "true"},
-      attributes: ['pid']}).then(on_pat => {
-        //res.send(appt);
-        //console.log(appt.map((a) => {return a.pid;}));
-        var arrB = on_pat.map(on_p => on_p.pid);
-        var arrA = appt.map((a) => a.pid );
-        var aminusb = arrA.filter(x => !arrB.includes(x));
-        //console.log(aminusb);
-        appointments.findAll({where: {pid: aminusb, done: "false", did: req.body.id},
-        attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(apptmt => {
-          //res.send(apptmt);
-          patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
-            //res.send(pat);
-            res.render("check-appointments", {appt: apptmt, pat: pat, id: req.body.id});
-          });
+  appointments.findAll({where: {did: req.body.id, done: "false"},
+  attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
+    ongoing_patients.findAll({where: {is_ongoing: "true"},
+    attributes: ['pid']}).then(on_pat => {
+      //res.send(appt);
+      //console.log(appt.map((a) => {return a.pid;}));
+      var arrB = on_pat.map(on_p => on_p.pid);
+      var arrA = appt.map((a) => a.pid );
+      var aminusb = arrA.filter(x => !arrB.includes(x));
+      //console.log(aminusb);
+      appointments.findAll({where: {pid: aminusb, done: "false", did: req.body.id},
+      attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(apptmt => {
+        //res.send(apptmt);
+        patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
+          //res.send(pat);
+          res.render("check-appointments", {appt: apptmt, pat: pat, id: req.body.id});
         });
       });
-    }).catch(err => {
-      console.log(err);
     });
-  } else {
-    ///////for nurse//////////
-    appointments.findAll({ attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
-      patient.findAll({where: {pid: appt.map(a => a.pid)},attributes: ['name', 'gender', 'age'] }).then(pat => {
-        //res.send(pat);
-        res.render("check-appointments", {appt: appt, pat: pat, id: req.body.id});
+  }).catch(err => {
+    console.log(err);
+  });
+});
+
+
+///////////////////////////Check Appointment for nurse/////////////////////////
+app.route("/:name/check-appt-nurse")
+.post(function(req, res){
+  appointments.findAll({where: {done: "false"}, attributes: ['appt_no', 'pid', 'room_alloted', 'date_admitted'] }).then(appt => {
+    //res.send(appt);
+    ongoing_patients.findAll({where: {is_ongoing: "true"},
+    attributes: ['pid']}).then(on_pat => {
+      //res.send(on_pat);
+      var arrB = on_pat.map(on_p => on_p.pid);
+      var arrA = appt.map((a) => a.pid );
+      var aminusb = arrA.filter(x => !arrB.includes(x));
+      console.log(aminusb);
+      appointments.findAll({where: {pid: aminusb, done: "false"} }).then(apptmt => {
+        //res.send(apptmt);
+        patient.findAll({where: {pid: aminusb},attributes: ['name', 'gender', 'age'] }).then(pat => {
+          //res.send(pat);
+          res.render("check-appointments-nurse", {appt: apptmt, pat: pat, name: req.params.name});
+        });
       });
     });
-  }
-
+  });
 });
 
 
@@ -287,9 +338,6 @@ app.route("/:id/:appt_no/add-prescription")
 
 ///////////////////////Add medicine in prescription////////////////////////////
 app.route("/add-med")
-// .get(function(req, res){
-//
-// })
 .post(function(req, res){
   console.log(req.body);
   const med = {
@@ -313,15 +361,7 @@ app.route("/login-patient")
     //console.log(doc);
     bcrypt.compare(req.body.password, pat.password, function(err, result) {
       if(result){
-        appointments.findAll({where: {pid: pat.pid, done: "false"} }).then(appt => {
-          //res.send(appt);
-          records.findAll({where: {appt_no: appt.map(a => a.appt_no)} }).then(rec => {
-            //res.send(rec);
-            doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
-              res.render("patient-home", {pat: pat, rec:rec, doc: doc});
-            });
-          });
-        });
+        res.redirect("/"+pat.pid+"/patient-home");
       }else{
         res.redirect("/login-patient");
       }
@@ -639,7 +679,7 @@ app.post("/submit-employee", function(req, res) {
               fields: ["eid", "name", "med_degree", "specialization", "experience", "shift", "doc_type", "username", "password"]
             }).then(() => {
               console.log('table updated');
-              res.redirect("/");
+              res.render("admin-home");
             });
           });
         });
@@ -663,7 +703,7 @@ app.post("/submit-employee", function(req, res) {
               fields: ["eid", "name", "shift", "username", "password"]
             }).then(() => {
               console.log('nurse table updated');
-              res.redirect("/");
+              res.render("admin-home");
             });
           });
         });
@@ -687,7 +727,7 @@ app.post("/submit-employee", function(req, res) {
               fields: ["eid", "name", "shift", "username", "password"]
             }).then(() => {
               console.log('receptionist table updated');
-              res.redirect("/");
+              res.render("admin-home");
             });
           });
         });
