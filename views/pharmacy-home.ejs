@@ -1,6 +1,30 @@
 <%- include('partials/header') %>
 
-<h1>pharmacy Homepage</h1>
+<div class="">
+  <div class="d-flex justify-content-center">
+    <div class="">
+      <h2 style="margin: 20px 0">Welcome</h2>
+    </div>
+  </div>
+  <div class="" style="position:absolute; right:70px; top:30px ">
+    <form class="" action="/logout" method="get">
+      <button class="btn btn-dark" type="submit" name="button">Logout</button>
+    </form>
+  </div>
+</div>
+
+<div class="container d-flex justify-content-center" >
+
+  <div class="row">
+    <div class="column" style="margin: 40px 10px">
+      <form class="" action="/check-pharmacy" method="post">
+        <label for="pat_name">Enter Patient Name</label>
+        <input id="pat_name" class="form-control" type="text" name="pat_name">
+        <button style="margin: 10px auto" class="btn btn-outline-dark" type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 
 <%- include('partials/footer') %>

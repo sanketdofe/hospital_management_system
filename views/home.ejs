@@ -1,12 +1,28 @@
 <%- include('partials/header') %>
 
 
-<div class="jumbotron centered">
-  <form class="" action="/" method="post">
-    <button class="btn btn-outline-dark" type="submit" name="name" value="Patient">Patient</button>
-    <button class="btn btn-light" type="submit" name="name" value="Employee">Employee</button>
-  </form>
+<div class="container d-flex justify-content-center" style="margin: 20px auto">
+    <div class="">
+      <h2 class="">WELCOME TO CITY HOSPITAL</h2>
+    </div>
 
 </div>
+<div class="container d-flex justify-content-center">
+  <div class="">
+    <h4>Select Who are You?</h4>
+  </div>
+</div>
 
+<div class="container d-flex justify-content-center">
+  <div class="" style="margin: 20px 50px">
+    <form class="" action="/" method="post">
+      <button class="btn btn-outline-dark" type="submit" name="name" value="Patient">Patient</button>
+      <button class="btn btn-light" type="submit" name="name" value="Employee">Employee</button>
+    </form>
+  </div>
+</div>
+
+<div class="container d-flex justify-content-center" style="margin: 30% auto 0">
+  <p>for admin login: <a href="/admin">Click here</a></p>
+</div>
 <%- include('partials/footer') %>

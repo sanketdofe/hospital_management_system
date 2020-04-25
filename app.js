@@ -76,7 +76,7 @@ app.route("/")
 
 
 //////////////////////////////Admin Login/////////////////////////////////////
-app.route("/admin-login")
+app.route("/admin")
 .get(function(req, res){
   res.render("login-admin");
 })
@@ -290,6 +290,24 @@ app.route("/check-case")
     });
   }
 
+});
+
+
+/////////////////////////Check prescription pharmacy///////////////////////////
+app.route("/check-pharmacy")
+.post(function(req, res){
+  const pat_name = _.snakeCase(req.body.pat_name);
+  patient.findOne({where: {username: pat_name}, attributes: ['pid'] }).then(pat => {
+    //res.send(pat);
+    records.findAll({where: {pid: pat.pid} }).then(rec => {
+      //res.send(rec);
+      doctor.findAll({where: {id: rec.map(r => r.did)} }).then(doc => {
+        res.render("check-history", {rec: rec, doc: doc});
+      });
+    }).catch(err => {
+      res.render("notfound", {item: "History"});
+    });
+  });
 });
 
 
