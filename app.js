@@ -12,7 +12,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     protocol: 'postgres',
     dialectOptions: {
-        ssl: true
+        ssl: false
     }
 });
 
@@ -150,10 +150,12 @@ app.route("/login-employee")
         res.redirect("/login-employee");
       });
 
-    } else if (type === "Laboratorist") {
-      res.render("laboratory-home");
-    } else if (type === "Pharmacist") {
-      res.render("pharmacy-home");
+    }  else if (type === "Pharmacist") {
+      if(username==="pharm" && password==="pharm@123"){
+        res.redirect("/pharmacy-home");
+      }else {
+        res.redirect("/login-employee");
+      }
     }
   });
 
@@ -171,6 +173,10 @@ app.get("/:name/reception-home", function(req, res){
 
 app.get("/:name/nurse-home", function(req, res){
   res.render("nurse-home", {name: req.params.name});
+});
+
+app.get("/pharmacy-home", function(req, res){
+  res.render("pharmacy-home");
 });
 
 app.get("/:pid/patient-home", function(req, res){
