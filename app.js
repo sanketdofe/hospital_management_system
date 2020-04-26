@@ -8,18 +8,13 @@ const saltRounds = 12;
 var multer = require('multer');
 var upload = multer();
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('hospital', 'postgres', '123', {
-  host: 'localhost',
-  dialect: 'postgres',
-  // "define": {
-  //   defaultScope: {
-  //     attributes: {
-  //       exclude: ['createdAt', 'updatedAt']
-  //     }
-  //   }
-  // }
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    dialectOptions: {
+        ssl: true
+    }
 });
-
 
 const app = express();
 
@@ -766,7 +761,7 @@ app.route("/logout")
 
 
 ///////////////////////////////Port Setup//////////////////////////////////////
-app.listen("3000", function(err) {
+app.listen(process.env.PORT || "3000", function(err) {
   if (err) {
     console.log(err);
   } else {
