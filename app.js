@@ -511,10 +511,11 @@ app.route("/:pid/add-appt-patient")
   const appt = {
     pid: req.params.pid,
     did: req.body.did,
-    date_admitted: new Date()
+    date_admitted: new Date(),
+    done: "false"
   };
   sequelize.sync({force: false}).then(() => {
-    appointments.create(appt, {fields: ["pid", "did", "date_admitted", "createdAt", "updatedAt"]}).then(apptmt => {
+    appointments.create(appt, {fields: ["pid", "did", "date_admitted", "createdAt", "updatedAt", "done"]}).then(apptmt => {
       const rec = {
         appt_no: apptmt.appt_no,
         pid: req.params.pid,
